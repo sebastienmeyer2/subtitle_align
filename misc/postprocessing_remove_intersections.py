@@ -168,7 +168,7 @@ def postprocessing_remove_intersections(test_file, path_subtitles = '/scratch/sh
         out_file = os.path.join(path_postpro_subs, test_file+sub_ext)
         os.makedirs(os.path.dirname(out_file), exist_ok=True)
 
-        fw = open(out_file, 'w')
+        fw = open(out_file, "w", encoding="utf-8")
         fw.write('WEBVTT\n\n')
 
         for sub in parsed_pred: 

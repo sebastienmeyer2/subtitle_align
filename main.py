@@ -156,7 +156,10 @@ def main(opts):
         gt_anno_paths = [Path(os.path.join(opts.gt_sub_path, p+sub_ext)) for p in test_files]
         
         if opts.dtw_postpro:
-            with Pool(opts.n_workers) as pool:
+            pool_workers = opts.n_workers
+            if pool_workers <= 0:
+                pool_workers = 1
+            with Pool(pool_workers) as pool:
                 pool.map(pp, test_files)
                 
             print("after DTW output")

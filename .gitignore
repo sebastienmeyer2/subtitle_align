@@ -1,3 +1,9 @@
+# Custom
+*venv/
+bobsl/
+checkpoints/
+
+# Default
 *.pyc
 *.pyo
 __pycache__

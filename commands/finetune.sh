@@ -1,7 +1,7 @@
 python main.py \
---features_path '/scratch/shared/beegfs/gul/datasets/features/bobsl/featurize-c2281_16f_pad10sec_m8_-15_4_d0.8_-3_22_anon-v0-stride0.25/filtered/' \
---gt_sub_path '/scratch/shared/beegfs/albanie/shared-datasets/bobsl/public_dataset_release/subtitles/manually-aligned/' \
---pr_sub_path '/scratch/shared/beegfs/hbull/shared-datasets/bobsl/audio-aligned-corrected/' \
+--features_path "/win/Users/Sébastien/Documents/4AX/Reconnaissance d'objets et vision artificielle/Projet/subtitle_align/bobsl/features/i3d_c2281_16f_m8_-15_4_d0.8_-3_22/" \
+--gt_sub_path "/win/Users/Sébastien/Documents/4AX/Reconnaissance d'objets et vision artificielle/Projet/subtitle_align/bobsl/subtitles/manually-aligned/" \
+--pr_sub_path "/win/Users/Sébastien/Documents/4AX/Reconnaissance d'objets et vision artificielle/Projet/subtitle_align/bobsl/subtitles/audio-aligned-heuristic-correction" \
 --gpu_id 0 \
 --batch_size 64 \
 --n_workers 32 \
@@ -13,14 +13,14 @@ python main.py \
 --load_words False \
 --load_subtitles True \
 --lr 1e-6 \
---save_path 'inference_output/finetune_subtitles' \
---train_videos_txt 'data/bobsl_align_train.txt' \
---val_videos_txt 'data/bobsl_align_test.txt' \
---test_videos_txt 'data/bobsl_test_254.txt' \
+--save_path "inference_output/finetune_subtitles" \
+--train_videos_txt "data/bobsl_align_train.txt" \
+--val_videos_txt "data/bobsl_align_test.txt" \
+--test_videos_txt "data/bobsl_test_254.txt" \
 --n_epochs 100 \
 --concatenate_prior True \
 --min_sent_len_filter 0.5 \
 --max_sent_len_filter 20 \
 --shuffle_words_subs 0.5 \
 --drop_words_subs 0.15 \
---resume 'inference_output/train_coarse_subtitles/checkpoints/model_0000250341.pt' \
+--resume "inference_output/train_coarse_subtitles/checkpoints/model_0000250341.pt" \
