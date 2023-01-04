@@ -175,11 +175,17 @@ class VideoTextDataset(Dataset):
         if self.opts.load_words:
             print('Loading word spottings...') 
             print('Adding bias to word spottings ', str(self.opts.words_delta_bias))
+            annot_thresholds = {
+                "M*": self.opts.conf_thresh_annot,
+                "D*": self.opts.conf_thresh_annot,
+                "P": 0., "E": 0., "N": 0.
+            }
             pad_annot = self.opts.pad_annot
             spottings = pickle.load(open(os.path.join(self.opts.spottings_path), "rb")) 
             for ix, episode in enumerate(spottings['episode_name']): 
                 ep = episode.replace('.mp4', '')
-                if ep in data_paths and spottings['annot_prob'][ix] > self.opts.conf_thresh_annot and spottings['annot_type'][ix] in ["M*", "D*"]: # (spottings['annot_type'][ix] in ["A", "E", "N"] or spottings['annot_prob'][ix] > self.opts.conf_thresh_annot):
+                # if ep in data_paths and spottings['annot_prob'][ix] > self.opts.conf_thresh_annot and spottings['annot_type'][ix] in ["M*", "D*"]: # (spottings['annot_type'][ix] in ["A", "E", "N"] or spottings['annot_prob'][ix] > self.opts.conf_thresh_annot):
+                if ep in data_paths and spottings["annot_type"][ix] in self.opts.word_annotations and spottings["annot_prob"][ix] > annot_thresholds.get(spottings["annot_type"][ix], 0.):
                     time = spottings['annot_time'][ix]
                     if self.opts.shift_spottings: 
                         time = shift_spottings([spottings['annot_type'][ix]], [time], fps=self.opts.fps)      

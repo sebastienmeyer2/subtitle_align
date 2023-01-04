@@ -64,8 +64,8 @@ class GtInvAlignTransformer(nn.Module):
             self.text_model = BertTextModel()
 
         # input projections for 2 modalities 
-        self.input_proj_vid = nn.Conv1d(self.d_vid, opts.d_model, kernel_size=1)
-        self.input_proj_txt = nn.Conv1d(self.d_txt, opts.d_model, kernel_size=1)
+        self.input_proj_vid = nn.Conv1d(self.d_vid, opts.d_model, kernel_size=1)  # why not linear?
+        self.input_proj_txt = nn.Conv1d(self.d_txt, opts.d_model, kernel_size=1)  # why not linear?
 
         # embedding for original subtitle 
         reproject_dim = opts.d_model
@@ -153,7 +153,7 @@ class GtInvAlignTransformer(nn.Module):
 
         out['loss'] = loss
 
-        outputs = torch.sigmoid(lin_layer.detach())
+        outputs = torch.sigmoid(lin_layer.detach())  # final predictions
 
         out['preds'] = outputs.cpu().numpy()
         if self.opts.concatenate_prior: 

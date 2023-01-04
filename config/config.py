@@ -75,6 +75,15 @@ def load_opts():
     # word spotting parameters
     parser.add_argument('--pad_annot', type=float, default=0.5, help='Padding in seconds (left and right) of word spotting annotation times')
     parser.add_argument('--conf_thresh_annot', type=float, default=0.8, help='Confidence threshold for word spottings (excluding A, E, N)')
+    parser.add_argument(
+        "--word-annotations",
+        default=["M*", "D*"],
+        nargs="*",
+        help="""
+             Choose the annotations to use. Available annotations: M*, D*, P, E, N.
+             Default: M* D*.
+             """
+    )
 
     # percentage of negative windows to add
     parser.add_argument('--negatives_percent', type = float, default = 0, help = "Proportion of negatives (GT=0) to add")
