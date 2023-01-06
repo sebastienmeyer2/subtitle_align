@@ -97,7 +97,57 @@ class VideoTextDataset(Dataset):
         else: 
             vid_episode_keys = data_paths
 
-        ### Loading subtitles 
+        # Load word spottings if we were to add them during subtitle alignment training
+        if self.opts.add_spottings_probs or self.opts.add_spottings_prior:
+
+            annot_thresholds = {
+                "M*": self.opts.conf_thresh_annot,
+                "D*": self.opts.conf_thresh_annot,
+                "P": 0., "E": 0., "N": 0.
+            }
+
+            # Initialize dictionaries mapping episode names to dict of {time: word}
+            self.ep_words = {}
+
+            # Load word spottings
+            print("Loading word spottings to add to subtitle alignment task...")
+
+            with open(os.path.join(self.opts.spottings_path), "rb") as f:
+
+                spottings = pickle.load(f)
+
+                for ix, episode in enumerate(spottings["episode_name"]):
+
+                    ep = episode.replace(".mp4", "")
+
+                    # Only consider spottings we want to keep
+                    annot_type = spottings["annot_type"][ix]
+                    annot_prob = spottings["annot_prob"][ix]
+
+                    if (
+                        ep in vid_episode_keys
+                        and annot_type in self.opts.word_annotations
+                        and annot_prob >= annot_thresholds.get(annot_type, 0.)
+                    ):
+
+                        # Shift time spotting (if so)
+                        time = spottings["annot_time"][ix]
+                        if self.opts.shift_spottings:
+                            time = shift_spottings(
+                                [spottings["annot_type"][ix]], [time], fps=self.opts.fps
+                            )
+                            time = time[0]
+                        time += self.opts.words_delta_bias
+
+                        # Add word spotting to the list of spottings for this episode
+                        word = spottings["annot_word"][ix]
+
+                        if ep not in self.ep_words:
+                            self.ep_words[ep] = {}
+
+                        self.ep_words[ep][time] = {"word": word, "prob": annot_prob}
+
+        ### Loading subtitles
         if self.opts.load_subtitles:
             print('Adding bias to prior subtitle times ', str(self.opts.pr_subs_delta_bias))
             print('Adding bias to GT subtitle times ', str(self.opts.gt_subs_delta_bias))
@@ -171,7 +221,7 @@ class VideoTextDataset(Dataset):
                         else: # TODO is this necessary?
                             self.data_dict["gt_fr"].append(-1)
                             self.data_dict["gt_to"].append(-1)
-        
+
         if self.opts.load_words:
             print('Loading word spottings...') 
             print('Adding bias to word spottings ', str(self.opts.words_delta_bias))
@@ -180,7 +230,7 @@ class VideoTextDataset(Dataset):
                 "D*": self.opts.conf_thresh_annot,
                 "P": 0., "E": 0., "N": 0.
             }
-            pad_annot = self.opts.pad_annot
+            pad_annot = self.opts.pad_annot  # by default 0.5s (1 word = 1s)
             spottings = pickle.load(open(os.path.join(self.opts.spottings_path), "rb")) 
             for ix, episode in enumerate(spottings['episode_name']): 
                 ep = episode.replace('.mp4', '')
@@ -305,7 +355,24 @@ class VideoTextDataset(Dataset):
             out_dict['pr_vec'] = self.times_to_labels_vec(out_dict["pr_fr_to"], out_dict["wind_fr_to"], out_dict["feats"]).astype(np.single)
             out_dict['gt_vec'] = self.times_to_labels_vec(out_dict["gt_fr_to"], out_dict["wind_fr_to"], out_dict["feats"]).astype(np.single)  
         out_dict['path'] = ep
-            
+
+        # Add spottings probabilities
+        if self.opts.add_spottings_probs:
+
+            out_dict["spottings_probs"] = self.spottings_to_probs_vec(
+                out_dict["wind_fr_to"], ep, out_dict["txt"], out_dict["feats"]
+            ).astype(np.single)
+
+        # Add spottings prior
+        if self.opts.add_spottings_prior:
+
+            out_dict["spottings_vec"] = self.spottings_to_labels_vec(
+                out_dict["wind_fr_to"], ep, out_dict["txt"], out_dict["feats"], out_dict["pr_vec"]
+            ).astype(np.single)
+
+        # DEBUG: print width of audio prior and spottings prior
+        # print(np.sum(out_dict["pr_vec"]), np.sum(out_dict["spottings_vec"]))
+
         return out_dict
 
     def jitter_pr_fr_to(self, pr_fr, pr_to):
@@ -453,6 +520,81 @@ class VideoTextDataset(Dataset):
 
         vector = np.zeros((len(samp_feats),1), dtype='float32')
         vector[start_frame:end_frame, :] = 1
+        return vector
+
+    def spottings_to_probs_vec(self, st_en_window, ep, sub_text, samp_feats):
+
+        # Filling the vectors when words appear in the subtitle
+        vector = np.zeros((len(samp_feats), 1), dtype="float32")
+
+        window_len = st_en_window[1] - st_en_window[0]
+
+        ep_words = self.ep_words[ep]
+
+        # Browse all words of this episode
+        for time, word_dict in ep_words.items():
+
+            word = word_dict["word"]
+            prob = word_dict["prob"]
+
+            # If word belongs to time sequence and subtitle text, then add probability
+            if time > st_en_window[0] and time < st_en_window[1] and word in sub_text:
+
+                word_frame = np.round(((time - st_en_window[0]) / window_len) * len(samp_feats))
+                word_frame = int(np.clip(word_frame, 0, len(samp_feats)-1))
+                vector[word_frame, :] += prob
+
+        return vector
+
+    def spottings_to_labels_vec(self, st_en_window, ep, sub_text, samp_feats, pr_vec):
+
+        # Find all spottings of words from subtitle text
+        window_len = st_en_window[1] - st_en_window[0]   
+
+        ep_words = self.ep_words[ep]
+        spottings_indices = []
+
+        # Browse all words of this episode
+        for time, word_dict in ep_words.items():
+
+            word = word_dict["word"]
+
+            # If word belongs to time sequence and subtitle text, register its frame
+            if time > st_en_window[0] and time < st_en_window[1] and word in sub_text:
+
+                word_frame = np.round(((time - st_en_window[0]) / window_len) * len(samp_feats))
+                word_frame = int(np.clip(word_frame, 0, len(samp_feats)-1))
+
+                spottings_indices.append(word_frame)
+
+        # Filling the vector with segment of 1 delimitating spottings prior
+        vector = np.zeros((len(samp_feats), 1), dtype="float32")
+
+        if len(spottings_indices) > 0:
+
+            # Adjust width to correspond width of prior
+            if self.opts.adjust_spottings_prior:
+
+                # word_centre = np.mean(spottings_indices)
+                word_centre = np.median(spottings_indices)  # more robust to outliers?
+
+                pr_vec_width = np.sum(pr_vec) / 2  # pr_vec is full of ones
+
+                st_word_frame = word_centre - pr_vec_width
+                en_word_frame = word_centre + pr_vec_width       
+
+                st_word_frame = int(np.clip(st_word_frame, 0, len(samp_feats)))
+                en_word_frame = int(np.clip(en_word_frame, 0, len(samp_feats)))
+
+            # Or take first and last indices
+            else:
+
+                st_word_frame = np.min(spottings_indices)
+                en_word_frame = np.max(spottings_indices)
+
+            # Complete vector
+            vector[st_word_frame:en_word_frame, :] = 1
+
         return vector
 
     def pad_tokens(self, tokens):

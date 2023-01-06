@@ -1,3 +1,22 @@
+# RecVis : Experiments on SAT
+
+This repository is mainly forked from base [SAT project](https://github.com/hannahbull/subtitle_align). We use the publicly available BOBSL dataset, as well as BSL-1K spottings provided in the base project. What has been done:
+
+- minor fixes notably to be able to train models on Windows (see commands/win_*.txt)
+- adding vector of spottings probs in the decoder (concatenate with other vectors such as video features)
+- adding spottings prior vector infered from spottings' frames (can be adjusted to prior width)
+
+TO-DO:
+
+- train w. spottings probs, spottings prior, (both?)
+- adding spottings embedding (average) to the decoder ? (mentioned in the FPP)
+- presentation
+    - explain the idea to use spottings probs + evaluate the power of those vectors (number of non-zeros in average, number of all zeros) + evaluate with test.sh
+    - explain the idea to use spottings prior + evaluate the power of those vectors (width, compared to prior / ground truth) + evaluate with test.sh
+    - explain the idea to use adjusted spottings prior + evaluate the power of those vectors (number of all zeros) + evaluate with test.sh 
+    - detail possible experiments with more annotations (P, E, N)
+    - visualize some predicted subtitles (compared to base model either on 60 videos or all data) and highlight some error cases
+
 # Introduction 
 
 This is the code repository for the article: 

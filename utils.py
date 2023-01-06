@@ -383,7 +383,7 @@ class F1Logger():
         for ii, overlap in enumerate(self.overlaps):
             precision = tp[ii] / float(tp[ii] + fp[ii])
             recall = tp[ii] / float(tp[ii] + fn[ii])
-            f1 = 2.0 * (precision * recall) / (precision + recall)
+            f1 = 2.0 * (precision * recall) / (precision + recall + 1e-9)  # avoid divide by zero
             f1 = np.nan_to_num(f1) * 100
             f1s.append(f1)
 
@@ -707,7 +707,7 @@ def wer(hypotheses, references, pad_idx=2, CTC=False):
         error = wer_calc(" ".join([str(i) for i in filter_references]), " ".join([str(i) for i in np.concatenate(hypotheses)]))    
     return error
 
-def shift_spottings(ann_types, ann_times, fps):
+def shift_spottings(ann_types, ann_times, fps):  # what is this doing?
     new_times = []
     #  M* [-9, 11], D* [-3, 22], P [0, 19], E [0, 19], N [0, 19]. 
     for idx, ann_t in enumerate(ann_types):

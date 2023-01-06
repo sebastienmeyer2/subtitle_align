@@ -73,6 +73,16 @@ class GtInvAlignTransformer(nn.Module):
             self.ref_vec_embedding = nn.Linear(1, opts.d_model)
             reproject_dim += opts.d_model
 
+        # Embedding for spottings probs
+        if self.opts.add_spottings_probs:
+            self.spottings_probs_emb = nn.Linear(1, opts.d_model)
+            reproject_dim += opts.d_model
+        
+        # Embedding for spottings prior
+        if self.opts.add_spottings_prior:
+            self.spottings_prior_emb = nn.Linear(1, opts.d_model)
+            reproject_dim += opts.d_model
+
         self.reproject_concatenate = nn.Linear(reproject_dim, opts.d_model)
 
         # self positional enc
@@ -108,7 +118,7 @@ class GtInvAlignTransformer(nn.Module):
         target_vector = data_dict['gt_vec'].type(torch.FloatTensor).cuda()
 
         txt_emb = self.text_model(text_inp) # (B, 768, T_txt, 1) 
-        
+
         txt_emb = txt_emb.type(torch.FloatTensor).cuda()
 
         assert self.opts.n_dec_layers >= 2, 'Should have more than one decoder layer with mulitple decoder inputs'
@@ -132,8 +142,34 @@ class GtInvAlignTransformer(nn.Module):
             ref_inp = self.ref_vec_embedding(pr_vec) 
             ref_inp = ref_inp.permute([1,0,2])
             vid_emb = torch.cat((vid_emb,ref_inp),2)       
-                    
-        if self.opts.concatenate_prior: 
+
+        # Add spottings probs
+        if self.opts.add_spottings_probs:
+
+            spottings_probs = data_dict["spottings_probs"].type(torch.FloatTensor).cuda()
+
+            spottings_inp = self.spottings_probs_emb(spottings_probs)
+            spottings_inp = spottings_inp.permute([1, 0, 2])
+
+            vid_emb = torch.cat((vid_emb, spottings_inp), 2)
+
+        # Add spottings prior
+        if self.opts.add_spottings_prior:
+
+            spottings_prior = data_dict["spottings_vec"].type(torch.FloatTensor).cuda()
+
+            spottings_inp = self.spottings_prior_emb(spottings_prior)
+            spottings_inp = spottings_inp.permute([1, 0, 2])
+
+            vid_emb = torch.cat((vid_emb, spottings_inp), 2)
+
+        reproject = (
+            self.opts.concatenate_prior
+            or self.opts.add_spottings_probs
+            or self.opts.add_spottings_prior
+        )
+
+        if reproject:
             vid_emb = self.reproject_concatenate(vid_emb)
 
         vid_emb = vid_emb * math.sqrt(self.opts.d_model)

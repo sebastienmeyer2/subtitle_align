@@ -84,6 +84,30 @@ def load_opts():
              Default: M* D*.
              """
     )
+    parser.add_argument(
+        "--add-spottings-probs",
+        default=False,
+        type=bool,
+        help=""" 
+             If True, a new vector will be concatenated together with the video frames (and with other optional vectors if options are set to True) during subtitle alignment. This new vector contains the probability at each timestamp where a word from the subtitle has a corresponding spotting in the selected "--word-annotations" annotations. Default: False.
+             """
+    )
+    parser.add_argument(
+        "--add-spottings-prior",
+        default=False,
+        type=bool,
+        help="""
+             If True, a new vector will be concatenated together with the video frames (and with other optional vectors if options are set to True) during subtitle alignment. This new vector contains a segment of 1 between the first and last spottings in the selected "--word-annotations" annotations of which words are in the subtitle text.  Default: False.
+             """
+    )
+    parser.add_argument(
+        "--adjust-spottings-prior",
+        default=False,
+        type=bool,
+        help="""
+             If True, width of the spottings prior vector will be adjusted to be equal (up to bounds of vectors) to the width of audio prior vector. Default: False 
+             """
+    )
 
     # percentage of negative windows to add
     parser.add_argument('--negatives_percent', type = float, default = 0, help = "Proportion of negatives (GT=0) to add")

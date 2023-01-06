@@ -72,7 +72,7 @@ class VideoTextTrainer(BaseTrainer):
 
                 ### if the video probs/vtt have not been saved already
                 if video_fname not in seen_out_files:
-                    if len(seen_out_files)>0:
+                    if len(seen_out_files)>0 and self.opts.save_probs:
                         prev_video_fname = seen_out_files[-1]
                         ## save probabilities 
                         save_path = os.path.join(self.opts.save_probs_folder, prev_video_fname)
@@ -201,7 +201,7 @@ class VideoTextTrainer(BaseTrainer):
 
         bar.close()
 
-        if mode=='test':
+        if mode=='test' and self.opts.save_probs:
             ### save last video at epoch end 
             prev_video_fname = seen_out_files[-1]
             ## save probabilities 
