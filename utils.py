@@ -381,8 +381,8 @@ class F1Logger():
         f1s = []
         tp, fp, fn = self.acum[f'tp{self.suffix}'], self.acum[f'fp{self.suffix}'], self.acum[f'fn{self.suffix}']
         for ii, overlap in enumerate(self.overlaps):
-            precision = tp[ii] / float(tp[ii] + fp[ii])
-            recall = tp[ii] / float(tp[ii] + fn[ii])
+            precision = tp[ii] / float(tp[ii] + fp[ii] + 1e-9)  # avoid divide by zero
+            recall = tp[ii] / float(tp[ii] + fn[ii] + 1e-9)  # avoid divide by zero
             f1 = 2.0 * (precision * recall) / (precision + recall + 1e-9)  # avoid divide by zero
             f1 = np.nan_to_num(f1) * 100
             f1s.append(f1)

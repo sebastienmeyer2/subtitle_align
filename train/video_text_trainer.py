@@ -41,6 +41,40 @@ class VideoTextTrainer(BaseTrainer):
 
         self.data_tic = self.step_tic = None
 
+        # Cumulative counters
+        gt_vec_nonzeros = 0
+        gt_vec_lengths = 0
+
+        gt_vec_width = 0
+        gt_vec_nb = 0
+
+        if self.opts.concatenate_prior:
+
+            pr_vec_nonzeros = 0
+            pr_vec_lengths = 0
+
+            pr_vec_empty = 0
+
+            pr_vec_width = 0
+            pr_vec_nb = 0
+
+        if self.opts.add_spottings_probs:
+
+            spottings_probs_nonzeros = 0
+            spottings_probs_lengths = 0
+
+            spottings_probs_empty = 0
+
+        if self.opts.add_spottings_prior:
+
+            spottings_prior_nonzeros = 0
+            spottings_prior_lengths = 0
+
+            spottings_prior_empty = 0
+
+            spottings_width = 0
+            spottings_nb = 0
+
         # -- for f1 accumulation
         self.f1_logger = F1Logger(overlaps=(0.5,))
         self.f1_logger_b = F1Logger(overlaps=(0.5,), suffix='_b')
@@ -199,6 +233,40 @@ class VideoTextTrainer(BaseTrainer):
             self.data_tic = time.time(
             )  # this counts how long we are waiting for data
 
+            # Update cumulative counters
+            gt_vec_nonzeros += model_out["gt_vec_nonzero"]
+            gt_vec_lengths += model_out["gt_vec_length"]
+
+            gt_vec_width += model_out["gt_vec_width"]
+            gt_vec_nb += model_out["gt_vec_nb"]
+
+            if self.opts.concatenate_prior:
+
+                pr_vec_nonzeros += model_out["pr_vec_nonzero"]
+                pr_vec_lengths += model_out["pr_vec_length"]
+
+                pr_vec_empty += model_out["pr_vec_empty"]
+
+                pr_vec_width += model_out["pr_vec_width"]
+                pr_vec_nb += model_out["pr_vec_nb"]
+
+            if self.opts.add_spottings_probs:
+
+                spottings_probs_nonzeros += model_out["spottings_probs_nonzero"]
+                spottings_probs_lengths += model_out["spottings_probs_length"]
+
+                spottings_probs_empty += model_out["spottings_probs_empty"]
+
+            if self.opts.add_spottings_prior:
+
+                spottings_prior_nonzeros += model_out["spottings_prior_nonzero"]
+                spottings_prior_lengths += model_out["spottings_prior_length"]
+
+                spottings_prior_empty += model_out["spottings_prior_empty"]
+
+                spottings_width += model_out["spottings_width"]
+                spottings_nb += model_out["spottings_nb"]
+
         bar.close()
 
         if mode=='test' and self.opts.save_probs:
@@ -215,6 +283,64 @@ class VideoTextTrainer(BaseTrainer):
             desc += "%s %.2f " % (cuml_name, cuml / counter)
             self.tb_writer.add_scalar(f'{mode}_epoch/{cuml_name}',
                                       cuml / counter, self.global_step)
+
+        # Print sanity checks
+        gt_vec_zero_prop = np.around(100 * (gt_vec_nonzeros / gt_vec_lengths), 2)        
+        desc += f" gt prop of nonzero frames: {gt_vec_zero_prop}%"
+
+        gt_vec_width_avg = np.around(gt_vec_width / gt_vec_nb, 2)
+        desc += f" avg width of gt vec: {gt_vec_width_avg}"
+
+        if self.opts.concatenate_prior:
+
+            pr_vec_zero_prop = np.around(
+                100 * (pr_vec_nonzeros / pr_vec_lengths),
+                2
+            )
+            desc += f" audio pr prop of nonzero frames: {pr_vec_zero_prop}%"
+
+            # Should be zero (we always have some audio prior in the windows)
+            # pr_vec_empty_prop = np.around(
+            #     100 * (pr_vec_empty / len(dataloader.dataset)),
+            #     2
+            # )
+            # desc += f" audio pr prop of zero vectors: {pr_vec_empty_prop}%"
+
+            pr_vec_width_avg = np.around(pr_vec_width / pr_vec_nb, 2)
+            desc += f" avg width of pr vec: {pr_vec_width_avg}"
+
+        if self.opts.add_spottings_probs:
+
+            spottings_probs_zero_prop = np.around(
+                100 * (spottings_probs_nonzeros / spottings_probs_lengths),
+                2
+            )
+            desc += f" spottings probs prop of nonzero frames: {spottings_probs_zero_prop}%"
+
+            spottings_probs_empty_prop = np.around(
+                100 * (spottings_probs_empty / len(dataloader.dataset)),
+                2
+            )
+            desc += f" spottings prop of zero vectors: {spottings_probs_empty_prop}%"
+
+        if self.opts.add_spottings_prior:
+
+            spottings_prior_zero_prop = np.around(
+                100 * (spottings_prior_nonzeros / spottings_prior_lengths),
+                2
+            )
+            desc += f" spottings prior prop of nonzero frames: {spottings_prior_zero_prop}%"
+
+            if not self.opts.add_spottings_probs:  # same value
+                spottings_prior_empty_prop = np.around(
+                    100 * (spottings_prior_empty / len(dataloader.dataset)),
+                    2
+                )
+                desc += f" spottings prop of zero vectors: {spottings_prior_empty_prop}%"
+
+            spottings_width_avg = np.around(spottings_width / spottings_nb, 2)
+            desc += f" avg width of spottings prior: {spottings_width_avg}"
+
         print(desc)
         self.tb_writer.flush()
 

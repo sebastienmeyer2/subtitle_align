@@ -5,17 +5,29 @@ This repository is mainly forked from base [SAT project](https://github.com/hann
 - minor fixes notably to be able to train models on Windows (see commands/win_*.txt)
 - adding vector of spottings probs in the decoder (concatenate with other vectors such as video features)
 - adding spottings prior vector infered from spottings' frames (can be adjusted to prior width)
+- ~~adding spottings embeddings (average) to the decoder ? (mentioned in the FPP)~~ -> we don't have positional context nor it will bring more information than subtitle embeddings, so we won't do that
+- measure proportion of non-zeros frames in different priors (audio, probs, spottings)
+- measure proportion of all-zeros vectors in different priors (audio, probs, spottings)
+- measure average width (when non-all-zeros) of vectors in different priors (audio, spottings)
+- also print avg width of ground truth
+- train models
+    - with spottings probs train + finetune
+    - with spottings prior train + finetune
+    - with both train + finetune
+    - with adjusted prior train + finetune
+    - with adjusted prior MDPEN annotations train + finetune
+    - with adjusted both MDPEN annotations train + finetune (i.e. everything)
 
 TO-DO:
 
-- train w. spottings probs, spottings prior, (both?)
-- adding spottings embedding (average) to the decoder ? (mentioned in the FPP)
 - presentation
-    - explain the idea to use spottings probs + evaluate the power of those vectors (number of non-zeros in average, number of all zeros) + evaluate with test.sh
-    - explain the idea to use spottings prior + evaluate the power of those vectors (width, compared to prior / ground truth) + evaluate with test.sh
-    - explain the idea to use adjusted spottings prior + evaluate the power of those vectors (number of all zeros) + evaluate with test.sh 
-    - detail possible experiments with more annotations (P, E, N)
-    - visualize some predicted subtitles (compared to base model either on 60 videos or all data) and highlight some error cases
+    - spottings probs (anchors)
+    - spottings prior (number of non-zeros in average, number of all zeros)
+    - adjusted spottings prior (width, compared to audio prior)
+    - more annotations w. P E N (number of all zeros vectors)
+    - for each method, run test.sh and report evolution of scores (highlight the fact that we have to retrain the projection layer)
+    - illustration: add spottings probs/prior to the model illustration from Bull et al.
+    - visualize some predicted subtitles (compare to base model either on 60 videos or all data) and highlight some error cases
 
 # Introduction 
 

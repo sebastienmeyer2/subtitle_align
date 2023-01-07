@@ -366,12 +366,9 @@ class VideoTextDataset(Dataset):
         # Add spottings prior
         if self.opts.add_spottings_prior:
 
-            out_dict["spottings_vec"] = self.spottings_to_labels_vec(
+            out_dict["spottings_prior"] = self.spottings_to_labels_vec(
                 out_dict["wind_fr_to"], ep, out_dict["txt"], out_dict["feats"], out_dict["pr_vec"]
             ).astype(np.single)
-
-        # DEBUG: print width of audio prior and spottings prior
-        # print(np.sum(out_dict["pr_vec"]), np.sum(out_dict["spottings_vec"]))
 
         return out_dict
 

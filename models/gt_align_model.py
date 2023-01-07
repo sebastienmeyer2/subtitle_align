@@ -156,7 +156,7 @@ class GtInvAlignTransformer(nn.Module):
         # Add spottings prior
         if self.opts.add_spottings_prior:
 
-            spottings_prior = data_dict["spottings_vec"].type(torch.FloatTensor).cuda()
+            spottings_prior = data_dict["spottings_prior"].type(torch.FloatTensor).cuda()
 
             spottings_inp = self.spottings_prior_emb(spottings_prior)
             spottings_inp = spottings_inp.permute([1, 0, 2])
@@ -219,6 +219,49 @@ class GtInvAlignTransformer(nn.Module):
                                                                 )
 
                 out.update( {'correct_b': correct_b, 'tp_b': tp_b, 'fp_b': fp_b, 'fn_b': fn_b, 'total_frames_b': total_b} )
+
+        # Sanity checks
+        out["gt_vec_nonzero"] = torch.count_nonzero(data_dict["gt_vec"]).item()
+        out["gt_vec_length"] = data_dict["gt_vec"].nelement()
+
+        gt_vec_zero_batch = (data_dict["gt_vec"].sum(axis=1) <= 0.).squeeze(-1)
+        out["gt_vec_width"] = data_dict["gt_vec"][~gt_vec_zero_batch].sum().item()
+        out["gt_vec_nb"] = len(data_dict["gt_vec"][~gt_vec_zero_batch])
+
+        if self.opts.concatenate_prior:
+
+            out["pr_vec_nonzero"] = torch.count_nonzero(data_dict["pr_vec"]).item()
+            out["pr_vec_length"] = data_dict["pr_vec"].nelement()
+
+            pr_vec_zero_batch = (data_dict["pr_vec"].sum(axis=1) <= 0.).squeeze(-1)
+            out["pr_vec_empty"] = pr_vec_zero_batch.sum().item()
+
+            out["pr_vec_width"] = data_dict["pr_vec"][~pr_vec_zero_batch].sum().item()
+            out["pr_vec_nb"] = len(data_dict["pr_vec"][~pr_vec_zero_batch])
+
+        if self.opts.add_spottings_probs:
+
+            out["spottings_probs_nonzero"] = torch.count_nonzero(
+                data_dict["spottings_probs"]
+            ).item()
+            out["spottings_probs_length"] = data_dict["spottings_probs"].nelement()
+
+            spottings_zero_batch = (data_dict["spottings_probs"].sum(axis=1) <= 0.).squeeze(-1)
+            out["spottings_probs_empty"] = spottings_zero_batch.sum().item()
+
+        if self.opts.add_spottings_prior:
+
+            out["spottings_prior_nonzero"] = torch.count_nonzero(
+                data_dict["spottings_prior"]
+            ).item()
+            out["spottings_prior_length"] = data_dict["spottings_prior"].nelement()
+
+            spottings_zero_batch = (data_dict["spottings_prior"].sum(axis=1) <= 0.).squeeze(-1)
+            out["spottings_prior_empty"] = spottings_zero_batch.sum().item()
+
+            out["spottings_width"] = \
+                data_dict["spottings_prior"][~spottings_zero_batch].sum().item()
+            out["spottings_nb"] = len(data_dict["spottings_prior"][~spottings_zero_batch])
 
         return out
 
