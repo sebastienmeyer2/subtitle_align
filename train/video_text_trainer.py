@@ -76,8 +76,8 @@ class VideoTextTrainer(BaseTrainer):
             spottings_nb = 0
 
         # -- for f1 accumulation
-        self.f1_logger = F1Logger(overlaps=(0.5,))
-        self.f1_logger_b = F1Logger(overlaps=(0.5,), suffix='_b')
+        self.f1_logger = F1Logger(overlaps=(0.1, 0.25, 0.5,))
+        self.f1_logger_b = F1Logger(overlaps=(0.1, 0.25, 0.5,), suffix='_b')
         
         seen_out_files = []
         
@@ -127,7 +127,7 @@ class VideoTextTrainer(BaseTrainer):
                         out_file = os.path.join(self.opts.save_subs_folder, video_fname, 'signhd.vtt')
                         print('saving ', out_file)
                         os.makedirs(out_folder, exist_ok=True)
-                        fw = open(out_file, 'w')
+                        fw = open(out_file, 'w', encoding="utf-8")
                         fw.write('WEBVTT\n\n')
 
                 # stuff to save from dataloader 

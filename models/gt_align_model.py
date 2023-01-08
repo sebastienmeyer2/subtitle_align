@@ -204,7 +204,7 @@ class GtInvAlignTransformer(nn.Module):
                                                         target_vector.detach().cpu().numpy(),
                                                         inp_fmt='vector',
                                                         BACKGROUND_LABEL = 0,
-                                                        overlaps = (0.5,)
+                                                        overlaps = (0.1, 0.25, 0.5,)
                                                         )
             out.update( {'correct': correct, 'tp': tp, 'fp': fp, 'fn': fn, 'total_frames': total} )
 
@@ -215,7 +215,7 @@ class GtInvAlignTransformer(nn.Module):
                                                                 target_vector.detach().cpu().numpy(),
                                                                 inp_fmt='vector',
                                                                 BACKGROUND_LABEL = 0,
-                                                                overlaps = (0.5,)
+                                                                overlaps = (0.1, 0.25, 0.5,)
                                                                 )
 
                 out.update( {'correct_b': correct_b, 'tp_b': tp_b, 'fp_b': fp_b, 'fn_b': fn_b, 'total_frames_b': total_b} )
