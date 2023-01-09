@@ -1,11 +1,15 @@
 # RecVis : Experiments on SAT
 
-This repository is mainly forked from base [SAT project](https://github.com/hannahbull/subtitle_align). We use the publicly available BOBSL dataset, as well as BSL-1K spottings provided in the base project. What has been done:
+This repository is mainly forked from base [SAT project](https://github.com/hannahbull/subtitle_align). We use the publicly available BOBSL dataset, as well as BSL-1K spottings provided in the base project. 
+
+Our results can be found in the *presentation/recvis_subtitle_alignment_presentation.pdf* and *report/recvis_subtitle_alignment_report.pdf* files.
+
+What has been done:
 
 - minor fixes notably to be able to train models on Windows (see commands/win_*.txt)
-- adding vector of spottings probs in the decoder (concatenate with other vectors such as video features)
+- add word annotations argument
+- adding probs (anchors) prior in the decoder (concatenate with other vectors such as video features)
 - adding spottings prior vector infered from spottings' frames (can be adjusted to prior width)
-- ~~adding spottings embeddings (average) to the decoder ? (mentioned in the FPP)~~ -> we don't have positional context nor it will bring more information than subtitle embeddings, so we won't do that
 - measure proportion of non-zeros frames in different priors (audio, probs, spottings)
 - measure proportion of all-zeros vectors in different priors (audio, probs, spottings)
 - measure average width (when non-all-zeros) of vectors in different priors (audio, spottings)
@@ -17,17 +21,20 @@ This repository is mainly forked from base [SAT project](https://github.com/hann
     - with adjusted prior train + finetune
     - with adjusted prior MDPEN annotations train + finetune
     - with adjusted both MDPEN annotations train + finetune (i.e. everything)
-
-TO-DO:
-
 - presentation
     - spottings probs (anchors)
     - spottings prior (number of non-zeros in average, number of all zeros)
     - adjusted spottings prior (width, compared to audio prior)
     - more annotations w. P E N (number of all zeros vectors)
     - for each method, run test.sh and report evolution of scores (highlight the fact that we have to retrain the projection layer)
-    - illustration: add spottings probs/prior to the model illustration from Bull et al.
+    - illustration: add probs prior / spottings prior to the model illustration from Bull et al.
     - visualize some predicted subtitles (compare to base model either on 60 videos or all data) and highlight some error cases
+
+TO-DO:
+
+- evaluate (at least some models) with Dynamic Time Warping
+- word embeddings per frame (in anchors prior)?
+- report
 
 # Introduction 
 

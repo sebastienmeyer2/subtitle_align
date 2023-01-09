@@ -3,6 +3,19 @@
 bobsl/
 checkpoints/
 
+# LaTeX
+*.sty
+*.bib 
+*.bst 
+*.tex 
+*.aux 
+*.fdb_latexmk
+*.fls 
+*.log 
+*.out 
+*.synctex.gz 
+*.tex
+
 # Default
 *.pyc
 *.pyo
