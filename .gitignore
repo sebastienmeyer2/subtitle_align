@@ -2,6 +2,7 @@
 *venv/
 bobsl/
 checkpoints/
+plot_example.py
 
 # LaTeX
 *.sty

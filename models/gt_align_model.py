@@ -74,7 +74,7 @@ class GtInvAlignTransformer(nn.Module):
             reproject_dim += opts.d_model
 
         # Embedding for spottings probs
-        if self.opts.add_spottings_probs:
+        if self.opts.add_anchors_prior:
             self.spottings_probs_emb = nn.Linear(1, opts.d_model)
             reproject_dim += opts.d_model
         
@@ -144,7 +144,7 @@ class GtInvAlignTransformer(nn.Module):
             vid_emb = torch.cat((vid_emb,ref_inp),2)       
 
         # Add spottings probs
-        if self.opts.add_spottings_probs:
+        if self.opts.add_anchors_prior:
 
             spottings_probs = data_dict["spottings_probs"].type(torch.FloatTensor).cuda()
 
@@ -165,7 +165,7 @@ class GtInvAlignTransformer(nn.Module):
 
         reproject = (
             self.opts.concatenate_prior
-            or self.opts.add_spottings_probs
+            or self.opts.add_anchors_prior
             or self.opts.add_spottings_prior
         )
 
@@ -239,7 +239,7 @@ class GtInvAlignTransformer(nn.Module):
             out["pr_vec_width"] = data_dict["pr_vec"][~pr_vec_zero_batch].sum().item()
             out["pr_vec_nb"] = len(data_dict["pr_vec"][~pr_vec_zero_batch])
 
-        if self.opts.add_spottings_probs:
+        if self.opts.add_anchors_prior:
 
             out["spottings_probs_nonzero"] = torch.count_nonzero(
                 data_dict["spottings_probs"]

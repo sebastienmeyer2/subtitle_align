@@ -15,7 +15,7 @@ python main.py \
 --centre_window \
 --save_path "inference_output/word_pretrain" \
 --train_videos_txt "data/bobsl_train_1658.txt" \
---val_videos_txt "data/bobsl_val_10.txt" \
+--val_videos_txt "data/bobsl_val_32.txt" \
 --test_videos_txt "data/bobsl_test_250.txt" \
 --pos_weight 19. \
 --n_epochs 41 \
@@ -24,3 +24,6 @@ python main.py \
 --concatenate_prior True \
 --random_subset_data 60 \
 --word-annotations M* D* \
+--add-anchors-prior False \
+--add-spottings-prior False \
+--adjust-spottings-prior False \

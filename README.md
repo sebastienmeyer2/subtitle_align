@@ -2,39 +2,24 @@
 
 This repository is mainly forked from base [SAT project](https://github.com/hannahbull/subtitle_align). We use the publicly available BOBSL dataset, as well as BSL-1K spottings provided in the base project. 
 
-Our results can be found in the *presentation/recvis_subtitle_alignment_presentation.pdf* and *report/recvis_subtitle_alignment_report.pdf* files.
+Our results can be found in the *presentation/recvis_subtitle_alignment_presentation_{9,16}.pdf* and *report/FPR_Meyer.pdf* files.
 
 What has been done:
 
 - minor fixes notably to be able to train models on Windows (see commands/win_*.txt)
-- add word annotations argument
-- adding probs (anchors) prior in the decoder (concatenate with other vectors such as video features)
-- adding spottings prior vector infered from spottings' frames (can be adjusted to prior width)
-- measure proportion of non-zeros frames in different priors (audio, probs, spottings)
-- measure proportion of all-zeros vectors in different priors (audio, probs, spottings)
-- measure average width (when non-all-zeros) of vectors in different priors (audio, spottings)
-- also print avg width of ground truth
-- train models
-    - with spottings probs train + finetune
-    - with spottings prior train + finetune
-    - with both train + finetune
-    - with adjusted prior train + finetune
-    - with adjusted prior MDPEN annotations train + finetune
-    - with adjusted both MDPEN annotations train + finetune (i.e. everything)
-- presentation
-    - spottings probs (anchors)
-    - spottings prior (number of non-zeros in average, number of all zeros)
-    - adjusted spottings prior (width, compared to audio prior)
-    - more annotations w. P E N (number of all zeros vectors)
-    - for each method, run test.sh and report evolution of scores (highlight the fact that we have to retrain the projection layer)
-    - illustration: add probs prior / spottings prior to the model illustration from Bull et al.
-    - visualize some predicted subtitles (compare to base model either on 60 videos or all data) and highlight some error cases
+- add word annotations argument (`--word-annotations M* D*`)
+- add anchors prior (`--add-anchors-prior False`)
+- add spottings prior (`--add-spottings-prior False`)
+- add adjusting of spottings prior (`--adjust-spottings-prior False`)
+- print sanity checks:  proportion of non-zero frames in priors, proportion of zero vectors in priors, average width of priors (when non-zero) and ground-truth
+- presentation (Jan 9 and Jan 16 versions)
+- report
 
 TO-DO:
 
-- evaluate (at least some models) with Dynamic Time Warping
-- word embeddings per frame (in anchors prior)?
-- report
+- update evaluation of S spottings adj PEN
+- train and evaluate S probs PEN?
+- qualitative analysis (gt, audio+3.2s, Bull et al., ours anchors and ours spottings+adj)
 
 # Introduction 
 

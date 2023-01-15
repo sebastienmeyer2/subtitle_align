@@ -85,7 +85,7 @@ def load_opts():
              """
     )
     parser.add_argument(
-        "--add-spottings-probs",
+        "--add-anchors-prior",
         default=False,
         type=bool,
         help=""" 

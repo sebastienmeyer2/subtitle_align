@@ -98,7 +98,7 @@ class VideoTextDataset(Dataset):
             vid_episode_keys = data_paths
 
         # Load word spottings if we were to add them during subtitle alignment training
-        if self.opts.add_spottings_probs or self.opts.add_spottings_prior:
+        if self.opts.add_anchors_prior or self.opts.add_spottings_prior:
 
             annot_thresholds = {
                 "M*": self.opts.conf_thresh_annot,
@@ -357,7 +357,7 @@ class VideoTextDataset(Dataset):
         out_dict['path'] = ep
 
         # Add spottings probabilities
-        if self.opts.add_spottings_probs:
+        if self.opts.add_anchors_prior:
 
             out_dict["spottings_probs"] = self.spottings_to_probs_vec(
                 out_dict["wind_fr_to"], ep, out_dict["txt"], out_dict["feats"]

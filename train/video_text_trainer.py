@@ -58,7 +58,7 @@ class VideoTextTrainer(BaseTrainer):
             pr_vec_width = 0
             pr_vec_nb = 0
 
-        if self.opts.add_spottings_probs:
+        if self.opts.add_anchors_prior:
 
             spottings_probs_nonzeros = 0
             spottings_probs_lengths = 0
@@ -250,7 +250,7 @@ class VideoTextTrainer(BaseTrainer):
                 pr_vec_width += model_out["pr_vec_width"]
                 pr_vec_nb += model_out["pr_vec_nb"]
 
-            if self.opts.add_spottings_probs:
+            if self.opts.add_anchors_prior:
 
                 spottings_probs_nonzeros += model_out["spottings_probs_nonzero"]
                 spottings_probs_lengths += model_out["spottings_probs_length"]
@@ -309,7 +309,7 @@ class VideoTextTrainer(BaseTrainer):
             pr_vec_width_avg = np.around(pr_vec_width / pr_vec_nb, 2)
             desc += f" avg width of pr vec: {pr_vec_width_avg}"
 
-        if self.opts.add_spottings_probs:
+        if self.opts.add_anchors_prior:
 
             spottings_probs_zero_prop = np.around(
                 100 * (spottings_probs_nonzeros / spottings_probs_lengths),
@@ -331,7 +331,7 @@ class VideoTextTrainer(BaseTrainer):
             )
             desc += f" spottings prior prop of nonzero frames: {spottings_prior_zero_prop}%"
 
-            if not self.opts.add_spottings_probs:  # same value
+            if not self.opts.add_anchors_prior:  # same value
                 spottings_prior_empty_prop = np.around(
                     100 * (spottings_prior_empty / len(dataloader.dataset)),
                     2
