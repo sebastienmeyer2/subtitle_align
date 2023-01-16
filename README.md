@@ -2,7 +2,7 @@
 
 This repository is mainly forked from base [SAT project](https://github.com/hannahbull/subtitle_align). We use the publicly available BOBSL dataset, as well as BSL-1K spottings provided in the base project. 
 
-Our results can be found in the *presentation/recvis_subtitle_alignment_presentation_{9,16}.pdf* and *report/FPR_Meyer.pdf* files.
+Our results can be found in the *presentation/FPS_{9,16}.pdf* and *report/FPR_Meyer.pdf* files.
 
 What has been done:
 
@@ -14,12 +14,6 @@ What has been done:
 - print sanity checks:  proportion of non-zero frames in priors, proportion of zero vectors in priors, average width of priors (when non-zero) and ground-truth
 - presentation (Jan 9 and Jan 16 versions)
 - report
-
-TO-DO:
-
-- update evaluation of S spottings adj PEN
-- train and evaluate S probs PEN?
-- qualitative analysis (gt, audio+3.2s, Bull et al., ours anchors and ours spottings+adj)
 
 # Introduction 
 
